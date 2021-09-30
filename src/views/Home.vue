@@ -1,45 +1,50 @@
 <template>
   <div class="home">
     <h1>Home</h1>
-
-    <h2>Refs</h2>
-    <p>{{ ninjaOne.name }} - {{ ninjaOne.age }}</p>
-    <button @click="updateNinjaOne">Update ninja one</button>
-
-    <h2>Reactive</h2>
-    <p>{{ ninjaTwo.name }} - {{ ninjaTwo.age }}</p>
-    <button @click="updateNinjaTwo">Update ninja two</button>
+    <input type="text" v-model="search" />
+    <p>Search term - {{ search }}</p>
+    <div v-for="name in matchingNames" :key="name">
+      {{ name }}
+    </div>
+    <button @click="handleClick">Stop watching</button>
   </div>
 </template>
 
 <script>
-import { ref, reactive } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 
 export default {
   name: "Home",
   setup() {
-    // const p = ref(null);
+    const search = ref("");
+    const names = ref([
+      "mario",
+      "yoshi",
+      "luigi",
+      "toad",
+      "bowser",
+      "koopa",
+      "peach",
+    ]);
 
-    const ninjaOne = ref({ name: "Mario", age: 30 });
-    const ninjaTwo = reactive({ name: "Luigi", age: 35 });
+    const stopWatch = watch(search, () => {
+      console.log("watch functon ran");
+    });
 
-    const nameOne = ref("Mario");
-    const nameTwo = reactive("Luigi"); //Not reactive bc is a primitive value
+    const stopEffect = watchEffect(() => {
+      console.log("watchEffect function ran", search.value);
+    });
 
-    const updateNinjaOne = () => {
-      ninjaOne.value.age = 40;
+    const matchingNames = computed(() => {
+      return names.value.filter((name) => name.includes(search.value));
+    });
+
+    const handleClick = () => {
+      stopWatch();
+      stopEffect();
     };
 
-    const updateNinjaTwo = () => {
-      ninjaTwo.age = 45;
-    };
-
-    return {
-      ninjaOne,
-      ninjaTwo,
-      updateNinjaOne,
-      updateNinjaTwo,
-    };
+    return { names, search, matchingNames, handleClick };
   },
 };
 </script>
